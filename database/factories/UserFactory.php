@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
+    protected $model = User::class;
     /**
      * The current password being used by the factory.
      */
@@ -44,5 +45,21 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function customer()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role_id' => 1,
+            ];
+        });
+    }
 
+    public function mechanic()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role_id' => 2,
+            ];
+        });
+    }
 }

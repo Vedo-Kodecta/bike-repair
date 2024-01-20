@@ -20,3 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('orders', OrderController::class);
+
+// Route::middleware(['auth:sanctum', 'checkUserRole:1'])->group(function () {
+//     Route::post('/orders', [OrderController::class, 'store']);
+// });

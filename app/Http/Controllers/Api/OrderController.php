@@ -18,6 +18,13 @@ class OrderController extends Controller
      */
     private array $relations = ['mechanic', 'customer', 'repairStatus'];
 
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->only(['show', 'store']);
+        $this->middleware('checkUserRole:1')->only(['show', 'store']);
+        $this->middleware('checkUserRole:2')->only(['index']);
+    }
+
     public function index()
     {
         $query = $this->loadRelationships(Order::query(), $this->relations);
@@ -65,8 +72,12 @@ class OrderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Order $order)
     {
-        //
+        $order->delete();
+
+        return response(status: 204)->json([
+            'message' => 'Order deleted successfully'
+        ]);
     }
 }
