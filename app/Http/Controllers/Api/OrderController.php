@@ -7,6 +7,9 @@ use App\Http\Requests\OrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Http\Traits\CanLoadRelationships;
 use App\Models\Order;
+use App\Models\RepairStatus;
+use App\Models\Scopes\GlobalScope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -20,8 +23,8 @@ class OrderController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->only(['show', 'store']);
-        $this->middleware('checkUserRole:1')->only(['show', 'store']);
+        $this->middleware('auth:sanctum')->only(['show', 'store', 'getOrdersWithRepairStatus']);
+        $this->middleware('checkUserRole:1')->only(['show', 'store', 'destroy']);
         $this->middleware('checkUserRole:2')->only(['index']);
     }
 
@@ -38,17 +41,9 @@ class OrderController extends Controller
     //First step (order_inquiry_sent)
     public function store(OrderRequest $request)
     {
-        //TODO: CHECK IF USER ROLE IS CUSTOMER
         $data = $request->validated();
 
-        //remove price if its somehow set
-        unset($data['price']);
-
-        // Set default values if not provided
-        $data['customer_id'] = $data['customer_id'] ?? 1;
-        $data['repair_status_id'] = $data['repair_status_id'] ?? 1;
-
-        $order = Order::create($data);
+        $order = Order::createOrder($data);
 
         return OrderResource::make($this->loadRelationships($order));
     }
@@ -64,7 +59,7 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Order $order)
     {
         //
     }
@@ -79,5 +74,15 @@ class OrderController extends Controller
         return response(status: 204)->json([
             'message' => 'Order deleted successfully'
         ]);
+    }
+
+    public function getOrdersWithRepairStatus(Order $order, int $status)
+    {
+        GlobalScope::checkExistance(new RepairStatus(), 'id', $status);
+
+        $orders = $order->where('repair_status_id', $status);
+
+        return OrderResource::collection($this->loadRelationships($orders)->latest()
+            ->paginate());
     }
 }

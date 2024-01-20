@@ -33,4 +33,27 @@ class Order extends Model
     {
         return $this->belongsTo(RepairStatus::class);
     }
+
+    /**
+     * Scope method to create an order
+     */
+    public function scopeCreateOrder($query, array $data)
+    {
+        $data = $this->sanitizeOrderData($data);
+
+        return $query->create($data);
+    }
+
+    /**
+     * Sanitize order data
+     */
+    protected function sanitizeOrderData(array $data)
+    {
+        unset($data['price']);
+
+        $data['customer_id'] = $data['customer_id'] ?? 1;
+        $data['repair_status_id'] = $data['repair_status_id'] ?? 1;
+
+        return $data;
+    }
 }
