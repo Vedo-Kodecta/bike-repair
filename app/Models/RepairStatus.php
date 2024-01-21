@@ -19,6 +19,9 @@ class RepairStatus extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'status',
+    ];
     protected $attributes = [
         'status' => 'order_inquiry_sent',
     ];

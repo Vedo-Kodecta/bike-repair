@@ -2,9 +2,14 @@
 
 namespace App\StateMachines\RepairStatus;
 
+use App\Traits\DefaultRepairStatusMethods;
+
 class PaymentSentState extends BaseRepairStatusState
 {
-    public function payment_accepted()
+
+    use DefaultRepairStatusMethods;
+
+    function payment_accepted()
     {
         $this->repairStatus->update(['status' => 'order_in_progress']);
     }

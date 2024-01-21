@@ -9,6 +9,7 @@ use App\Http\Traits\CanLoadRelationships;
 use App\Models\Order;
 use App\Models\RepairStatus;
 use App\Models\Scopes\GlobalScope;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
@@ -86,14 +87,28 @@ class OrderController extends Controller
             ->paginate());
     }
 
-    // public function setPriceOnOrder(OrderRequest $request, Order $order)
-    // {
-    //     //price mora i update statea na 2
-    //     $order->update([
-    //         ...$request->validated(),
-    //     ]);
+    public function setPrice(Order $order)
+    {
+        $order = $this->loadRelationships($order, ['repairStatus']);
 
-    //     return OrderResource::collection($this->loadRelationships($orders)->latest()
-    //         ->paginate());
-    // }
+        // Check if the order has a repair status
+        if (!$order->repairStatus) {
+            return response()->json(['message' => 'Order does not have a repair status.'], 400);
+        }
+
+        try {
+            $status = $order->repairStatus->state();
+
+            $status->set_price();
+
+            // Load the updated repair_status relationship
+            $order->load('repairStatus');
+            return OrderResource::make($order);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update order status.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

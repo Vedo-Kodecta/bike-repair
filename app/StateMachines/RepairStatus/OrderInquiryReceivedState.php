@@ -2,14 +2,25 @@
 
 namespace App\StateMachines\RepairStatus;
 
+use App\Traits\DefaultRepairStatusMethods;
+use Exception;
+
 class OrderInquiryReceivedState extends BaseRepairStatusState
 {
-    public function pay()
+
+    use DefaultRepairStatusMethods;
+
+    public function set_price()
+    {
+        throw new Exception('ovde nekim cudom');
+    }
+
+    function pay()
     {
         $this->repairStatus->update(['status' => 'payment_sent']);
     }
 
-    public function cancel_order()
+    function cancel_order()
     {
         $this->repairStatus->update(['status' => 'order_failed']);
     }

@@ -21,3 +21,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::apiResource('orders', OrderController::class);
 Route::get('/orders/repair-status/{status}', [OrderController::class, 'getOrdersWithRepairStatus']);
+Route::put('/orders/{order}/set-price', [OrderController::class, 'setPrice']);
