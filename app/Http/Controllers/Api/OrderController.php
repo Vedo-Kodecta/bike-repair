@@ -25,12 +25,12 @@ class OrderController extends Controller
     {
         $this->middleware('auth:sanctum')->only(['show', 'store', 'getOrdersWithRepairStatus']);
         $this->middleware('checkUserRole:1')->only(['show', 'store', 'destroy']);
-        $this->middleware('checkUserRole:2')->only(['index']);
+        //$this->middleware('checkUserRole:2')->only(['index']);
     }
 
     public function index()
     {
-        $query = $this->loadRelationships(Order::query(), $this->relations);
+        $query = $this->loadRelationships(Order::query());
 
         return OrderResource::collection($query->latest()->paginate());
     }
@@ -85,4 +85,15 @@ class OrderController extends Controller
         return OrderResource::collection($this->loadRelationships($orders)->latest()
             ->paginate());
     }
+
+    // public function setPriceOnOrder(OrderRequest $request, Order $order)
+    // {
+    //     //price mora i update statea na 2
+    //     $order->update([
+    //         ...$request->validated(),
+    //     ]);
+
+    //     return OrderResource::collection($this->loadRelationships($orders)->latest()
+    //         ->paginate());
+    // }
 }
