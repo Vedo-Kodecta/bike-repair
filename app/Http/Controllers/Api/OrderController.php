@@ -171,19 +171,7 @@ class OrderController extends Controller
 
     public function availableFunctions(Order $order)
     {
-        try {
-            $status = $this->loadRelationships($order, ['repairStatus'])->state();
-            $availableFunctions = GlobalScope::getAvailableFunctions($status);
-
-            return response()->json([
-                'message' => 'List of available functions for order status',
-                'functions' => $availableFunctions,
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve available functions',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        $status = $this->loadRelationships($order, ['repairStatus'])->state();
+        return GlobalScope::getAvailableFunctions($status);
     }
 }

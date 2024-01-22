@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Validation\ValidationException;
@@ -39,16 +40,31 @@ class GlobalScope implements Scope
     /**
      * Utility method to get available functions for a given state.
      */
-    public static function getAvailableFunctions($state): array
+    public static function getAvailableFunctions($state): JsonResponse
     {
-        return Utility::getAvailableFunctions($state);
+        try {
+            $availableFunctions = Utility::getAvailableFunctions($state);
+            return response()->json([
+                'message' => 'List of available functions for order status',
+                'functions' => $availableFunctions,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve available functions',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
      * Update state machine and perform additional functionality.
      */
-    public static function updateStateMachine(Model $model, ?array $relationships = null, JsonResource|string $resource, ?callable $additionalFunction = null)
-    {
+    public static function updateStateMachine(
+        Model $model,
+        ?array $relationships = null,
+        JsonResource|string $resource,
+        ?callable $additionalFunction = null
+    ) {
         if ($relationships) {
             $model = $model->load($relationships);
         }
