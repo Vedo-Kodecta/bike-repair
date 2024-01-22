@@ -23,12 +23,12 @@ Route::apiResource('orders', OrderController::class)->except(['update']);
 Route::prefix('/orders')->group(function () {
     Route::get('/repair-status/{status}', [OrderController::class, 'getOrdersWithRepairStatus']);
 
-    Route::prefix('/{order}/state')->group(function () {
-        Route::put('/set-price', [OrderController::class, 'setPrice']);
-        Route::put('/pay', [OrderController::class, 'pay']);
-        Route::put('/payment-accepted', [OrderController::class, 'paymentAccepted']);
-        Route::put('/finalize-order', [OrderController::class, 'finalizeOrder']);
-        Route::put('/cancel-order', [OrderController::class, 'cancelOrder']);
+    Route::middleware('auth:sanctum')->prefix('/{order}/state')->group(function () {
+        Route::put('/set-price', [OrderController::class, 'setPrice'])->middleware(['checkUserRole:2']);
+        Route::put('/pay', [OrderController::class, 'pay'])->middleware(['checkUserRole:1']);;
+        Route::put('/payment-accepted', [OrderController::class, 'paymentAccepted'])->middleware(['checkUserRole:2']);;
+        Route::put('/finalize-order', [OrderController::class, 'finalizeOrder'])->middleware(['checkUserRole:2']);;
+        Route::put('/cancel-order', [OrderController::class, 'cancelOrder'])->middleware(['checkUserRole:1']);;
         Route::get('/available-functions', [OrderController::class, 'availableFunctions']);
     });
 });

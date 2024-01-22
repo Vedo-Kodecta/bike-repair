@@ -27,8 +27,7 @@ class OrderController extends Controller
     public function __construct()
     {
         $this->middleware('auth:sanctum')->only(['show', 'store', 'getOrdersWithRepairStatus']);
-        $this->middleware('checkUserRole:1')->only(['show', 'store', 'destroy']);
-        //$this->middleware('checkUserRole:2')->only(['index']);
+        $this->middleware('checkUserRole:1')->only(['show', 'store', 'destroy',]);
     }
 
     public function index()
@@ -95,15 +94,15 @@ class OrderController extends Controller
     //Second status (order_inquiry_recieved)
     public function setPrice(OrderRequest $request, Order $order)
     {
+        GlobalScope::checkIfFieldIsEmpty($request, 'price');
+
         $response = GlobalScope::updateStateMachine(
             $order,
             ['repairStatus'],
             OrderResource::class,
             function ($status, $order) use ($request) {
                 $status->set_price();
-                $order->update([
-                    ...$request->validated()
-                ]);
+                $order->update($request->validated());
             }
         );
 
@@ -155,7 +154,7 @@ class OrderController extends Controller
         return $response;
     }
 
-    //sixed status (order_failed)
+    //Sixth status (order_failed)
     public function cancelOrder(Order $order)
     {
         $response = GlobalScope::updateStateMachine(

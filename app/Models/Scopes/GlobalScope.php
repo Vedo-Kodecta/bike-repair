@@ -7,7 +7,9 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Validation\ValidationException;
 
 class GlobalScope implements Scope
 {
@@ -70,5 +72,19 @@ class GlobalScope implements Scope
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Manually check if field is empty in request
+     */
+    public static function checkIfFieldIsEmpty(Request $request, string $field)
+    {
+        if (!$request->filled($field)) {
+            throw ValidationException::withMessages([
+                $field => ['The ' . $field . ' field is required.']
+            ]);
+        }
+
+        return null;
     }
 }
