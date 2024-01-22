@@ -19,9 +19,6 @@ class RepairStatus extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'status',
-    ];
     protected $attributes = [
         'status' => 'order_inquiry_sent',
     ];
@@ -30,18 +27,4 @@ class RepairStatus extends Model
     {
         return $this->hasMany(Order::class);
     }
-
-    // public function state(): RepairStatusInterface
-    // {
-    //     dd($this);
-    //     return match (ERepairStatus::from($this->status)) {
-    //         ERepairStatus::ORDER_INQUIRY_SENT() => new OrderInquirySentState($this),
-    //         ERepairStatus::ORDER_INQUIRY_RECEIVED() => new OrderInquiryReceivedState($this),
-    //         ERepairStatus::PAYMENT_SENT() => new PaymentSentState($this),
-    //         ERepairStatus::ORDER_IN_PROGRESS() => new OrderInProgressState($this),
-    //         ERepairStatus::ORDER_READY() => new OrderReadyState($this),
-    //         ERepairStatus::ORDER_FAILED() => new OrderFailedState($this),
-    //         default => throw new InvalidArgumentException('Invalid status')
-    //     };
-    // }
 }

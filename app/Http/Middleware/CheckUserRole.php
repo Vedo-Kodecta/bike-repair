@@ -21,6 +21,6 @@ class CheckUserRole
             return $next($request);
         }
 
-        return response()->json(['error' => 'Role Unauthorized.'], 403);
+        return response()->json(['error' => 'Role Unauthorized.'], 401);
     }
 }

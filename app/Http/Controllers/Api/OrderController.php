@@ -12,6 +12,8 @@ use App\Models\Scopes\GlobalScope;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use ReflectionClass;
+use ReflectionMethod;
 
 class OrderController extends Controller
 {
@@ -87,22 +89,100 @@ class OrderController extends Controller
             ->paginate());
     }
 
-    public function setPrice(Order $order)
+    /*
+    *State machine API controller methods
+    */
+    //Second status (order_inquiry_recieved)
+    public function setPrice(OrderRequest $request, Order $order)
     {
-        $order = $this->loadRelationships($order, ['repairStatus']);
+        $response = GlobalScope::updateStateMachine(
+            $order,
+            ['repairStatus'],
+            OrderResource::class,
+            function ($status, $order) use ($request) {
+                $status->set_price();
+                $order->update([
+                    ...$request->validated()
+                ]);
+            }
+        );
 
-        if (!$order->repairStatus) {
-            return response()->json(['message' => 'Order does not have a repair status.'], 400);
-        }
+        return $response;
+    }
 
+    //Third status (payment_sent)
+    public function pay(Order $order)
+    {
+        $response = GlobalScope::updateStateMachine(
+            $order,
+            ['repairStatus'],
+            OrderResource::class,
+            function ($status) {
+                $status->pay();
+            }
+        );
+
+        return $response;
+    }
+
+    //Fourth status (order_in_progress)
+    public function paymentAccepted(Order $order)
+    {
+        $response = GlobalScope::updateStateMachine(
+            $order,
+            ['repairStatus'],
+            OrderResource::class,
+            function ($status) {
+                $status->payment_accepted();
+            }
+        );
+
+        return $response;
+    }
+
+    //Fifth status (order_ready)
+    public function finalizeOrder(Order $order)
+    {
+        $response = GlobalScope::updateStateMachine(
+            $order,
+            ['repairStatus'],
+            OrderResource::class,
+            function ($status) {
+                $status->finalize_order();
+            }
+        );
+
+        return $response;
+    }
+
+    //sixed status (order_failed)
+    public function cancelOrder(Order $order)
+    {
+        $response = GlobalScope::updateStateMachine(
+            $order,
+            ['repairStatus'],
+            OrderResource::class,
+            function ($status) {
+                $status->cancel_order();
+            }
+        );
+
+        return $response;
+    }
+
+    public function availableFunctions(Order $order)
+    {
         try {
             $status = $this->loadRelationships($order, ['repairStatus'])->state();
-            $status->set_price();
+            $availableFunctions = GlobalScope::getAvailableFunctions($status);
 
-            return OrderResource::make($this->loadRelationships($order, ['repairStatus']));
+            return response()->json([
+                'message' => 'List of available functions for order status',
+                'functions' => $availableFunctions,
+            ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Failed to update order status.',
+                'message' => 'Failed to retrieve available functions',
                 'error' => $e->getMessage(),
             ], 500);
         }
