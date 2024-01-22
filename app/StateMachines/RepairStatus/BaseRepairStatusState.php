@@ -3,27 +3,42 @@
 namespace App\StateMachines\RepairStatus;
 
 use App\Interfaces\RepairStatusInterface;
+use App\Models\Order;
 use App\Models\RepairStatus;
 use Exception;
 
 abstract class BaseRepairStatusState implements RepairStatusInterface
 {
 
-    protected RepairStatus $repairStatus;
+    protected Order $order;
 
-    function __construct(RepairStatus $repairStatus)
+    function __construct(Order $order)
     {
-        $this->repairStatus = $repairStatus;
+        $this->order = $order;
     }
 
-    abstract function set_price();
-    abstract function pay();
-    abstract function payment_accepted();
-    abstract function finalize_order();
-    abstract function cancel_order();
-
-    protected function throwException()
+    public function set_price()
     {
-        throw new Exception();
+        throw new Exception('Un-allowed action');
+    }
+
+    public function pay()
+    {
+        throw new Exception('Un-allowed action');
+    }
+
+    public function payment_accepted()
+    {
+        throw new Exception('Un-allowed action');
+    }
+
+    public function finalize_order()
+    {
+        throw new Exception('Un-allowed action');
+    }
+
+    public function cancel_order()
+    {
+        throw new Exception('Un-allowed action');
     }
 }

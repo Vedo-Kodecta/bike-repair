@@ -91,19 +91,15 @@ class OrderController extends Controller
     {
         $order = $this->loadRelationships($order, ['repairStatus']);
 
-        // Check if the order has a repair status
         if (!$order->repairStatus) {
             return response()->json(['message' => 'Order does not have a repair status.'], 400);
         }
 
         try {
-            $status = $order->repairStatus->state();
-
+            $status = $this->loadRelationships($order, ['repairStatus'])->state();
             $status->set_price();
 
-            // Load the updated repair_status relationship
-            $order->load('repairStatus');
-            return OrderResource::make($order);
+            return OrderResource::make($this->loadRelationships($order, ['repairStatus']));
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Failed to update order status.',
