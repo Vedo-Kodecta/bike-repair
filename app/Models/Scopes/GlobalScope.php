@@ -103,4 +103,39 @@ class GlobalScope implements Scope
 
         return null;
     }
+
+    /**
+     * Add current user value to the request
+     */
+    public static function addCurrentUserValueToRequest(Request $request, string $value)
+    {
+        try {
+            $data = $request->validated();
+            $data[$value] = auth()->user()->id;
+
+            return $data;
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to add value to request',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Add current user value to the request
+     */
+    public static function addCurrentUserValueToModel(Model $model, string $value)
+    {
+        try {
+            $model->{$value} = auth()->user()->id;
+
+            return $model;
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to add value to request',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

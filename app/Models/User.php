@@ -52,6 +52,11 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    // public function orders()
+    // {
+    //     return $this->hasMany(Order::class, 'customer_id');
+    // }
+
     public function scopeGetAllMechanics(Builder $query): Builder
     {
         return $query->where('role_id', 2);

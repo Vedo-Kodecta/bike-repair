@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('orders', OrderController::class)->except(['update']);
 Route::prefix('/orders')->group(function () {
     Route::get('/repair-status/{status}', [OrderController::class, 'getOrdersWithRepairStatus']);
+    //Route::get('/get-user-orders', [OrderController::class, 'customerOrders']);
 
     Route::middleware('auth:sanctum')->prefix('/{order}/state')->group(function () {
         Route::put('/set-price', [OrderController::class, 'setPrice'])->middleware(['checkUserRole:2']);

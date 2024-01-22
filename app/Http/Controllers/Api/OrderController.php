@@ -9,11 +9,7 @@ use App\Http\Traits\CanLoadRelationships;
 use App\Models\Order;
 use App\Models\RepairStatus;
 use App\Models\Scopes\GlobalScope;
-use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use ReflectionClass;
-use ReflectionMethod;
 
 class OrderController extends Controller
 {
@@ -27,7 +23,7 @@ class OrderController extends Controller
     public function __construct()
     {
         $this->middleware('auth:sanctum')->only(['show', 'store', 'getOrdersWithRepairStatus']);
-        $this->middleware('checkUserRole:1')->only(['show', 'store', 'destroy',]);
+        $this->middleware('checkUserRole:1')->only(['store', 'destroy']);
     }
 
     public function index()
@@ -43,7 +39,7 @@ class OrderController extends Controller
     //First step (order_inquiry_sent)
     public function store(OrderRequest $request)
     {
-        $data = $request->validated();
+        $data = GlobalScope::addCurrentUserValueToRequest($request, Order::class, 'customer_id');
 
         $order = Order::createOrder($data);
 
@@ -88,6 +84,17 @@ class OrderController extends Controller
             ->paginate());
     }
 
+    // public function customerOrders()
+    // {
+    //     $customer = auth()->user();
+    //     $orders = $customer->orders;
+
+    //     dd($orders);
+
+    //     // You can return the orders or transform them into a resource if needed
+    //     return OrderResource::collection($orders);
+    // }
+
     /*
     *State machine API controller methods
     */
@@ -95,6 +102,8 @@ class OrderController extends Controller
     public function setPrice(OrderRequest $request, Order $order)
     {
         GlobalScope::checkIfFieldIsEmpty($request, 'price');
+
+        $order = GlobalScope::addCurrentUserValueToModel($order, 'mechanic_id');
 
         $response = GlobalScope::updateStateMachine(
             $order,
