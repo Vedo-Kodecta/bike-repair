@@ -9,6 +9,7 @@ use App\Http\Traits\CanLoadRelationships;
 use App\Models\Order;
 use App\Models\RepairStatus;
 use App\Models\Scopes\GlobalScope;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -18,9 +19,8 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    private array $relations = ['mechanic', 'customer', 'repairStatus'];
 
-    public function __construct()
+    public function __construct(protected OrderService $orderService)
     {
         $this->middleware('auth:sanctum')->only(['show', 'store', 'getOrdersWithRepairStatus']);
         $this->middleware('checkUserRole:1')->only(['store', 'destroy']);
@@ -28,9 +28,7 @@ class OrderController extends Controller
 
     public function index()
     {
-        $query = $this->loadRelationships(Order::query());
-
-        return OrderResource::collection($query->latest()->paginate());
+        return $this->orderService->getAll();
     }
 
     /**
@@ -39,11 +37,7 @@ class OrderController extends Controller
     //First step (order_inquiry_sent)
     public function store(OrderRequest $request)
     {
-        $data = GlobalScope::addCurrentUserValueToRequest($request, Order::class, 'customer_id');
-
-        $order = Order::createOrder($data);
-
-        return OrderResource::make($this->loadRelationships($order));
+        return $this->orderService->create($request);
     }
 
     /**
@@ -51,7 +45,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        return OrderResource::make($this->loadRelationships($order));
+        return $this->orderService->getOne($order);
     }
 
     /**
@@ -67,11 +61,7 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        $order->delete();
-
-        return response(status: 204)->json([
-            'message' => 'Order deleted successfully'
-        ]);
+        return $this->orderService->remove($order);
     }
 
     public function getOrdersWithRepairStatus(Order $order, int $status)

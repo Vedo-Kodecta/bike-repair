@@ -123,7 +123,7 @@ class GlobalScope implements Scope
     }
 
     /**
-     * Add current user value to the request
+     * Add current user value to the model
      */
     public static function addCurrentUserValueToModel(Model $model, string $value)
     {
