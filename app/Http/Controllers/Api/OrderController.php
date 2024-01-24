@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\EStateMachineFunctions;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
 use App\Http\Resources\OrderResource;
@@ -66,24 +67,8 @@ class OrderController extends Controller
 
     public function getOrdersWithRepairStatus(Order $order, int $status)
     {
-        GlobalScope::checkExistance(new RepairStatus(), 'id', $status);
-
-        $orders = $order->where('repair_status_id', $status);
-
-        return OrderResource::collection($this->loadRelationships($orders)->latest()
-            ->paginate());
+        return $this->orderService->orderWithRepairStatus($order, $status);
     }
-
-    // public function customerOrders()
-    // {
-    //     $customer = auth()->user();
-    //     $orders = $customer->orders;
-
-    //     dd($orders);
-
-    //     // You can return the orders or transform them into a resource if needed
-    //     return OrderResource::collection($orders);
-    // }
 
     /*
     *State machine API controller methods
@@ -91,81 +76,33 @@ class OrderController extends Controller
     //Second status (order_inquiry_recieved)
     public function setPrice(OrderRequest $request, Order $order)
     {
-        GlobalScope::checkIfFieldIsEmpty($request, 'price');
+        $order = $this->orderService->updateOrderForSetPrice($request, $order);
 
-        $order = GlobalScope::addCurrentUserValueToModel($order, 'mechanic_id');
-
-        $response = GlobalScope::updateStateMachine(
-            $order,
-            ['repairStatus'],
-            OrderResource::class,
-            function ($status, $order) use ($request) {
-                $status->set_price();
-                $order->update($request->validated());
-            }
-        );
-
-        return $response;
+        return $this->orderService->generateResponseForStateMachine($order, EStateMachineFunctions::SET_PRICE, $request);
     }
 
     //Third status (payment_sent)
     public function pay(Order $order)
     {
-        $response = GlobalScope::updateStateMachine(
-            $order,
-            ['repairStatus'],
-            OrderResource::class,
-            function ($status) {
-                $status->pay();
-            }
-        );
-
-        return $response;
+        return $this->orderService->generateResponseForStateMachine($order, EStateMachineFunctions::PAY,);
     }
 
     //Fourth status (order_in_progress)
     public function paymentAccepted(Order $order)
     {
-        $response = GlobalScope::updateStateMachine(
-            $order,
-            ['repairStatus'],
-            OrderResource::class,
-            function ($status) {
-                $status->payment_accepted();
-            }
-        );
-
-        return $response;
+        return $this->orderService->generateResponseForStateMachine($order, EStateMachineFunctions::PAYMENT_ACCEPTED,);
     }
 
     //Fifth status (order_ready)
     public function finalizeOrder(Order $order)
     {
-        $response = GlobalScope::updateStateMachine(
-            $order,
-            ['repairStatus'],
-            OrderResource::class,
-            function ($status) {
-                $status->finalize_order();
-            }
-        );
-
-        return $response;
+        return $this->orderService->generateResponseForStateMachine($order, EStateMachineFunctions::FINALIZE_ORDER,);
     }
 
     //Sixth status (order_failed)
     public function cancelOrder(Order $order)
     {
-        $response = GlobalScope::updateStateMachine(
-            $order,
-            ['repairStatus'],
-            OrderResource::class,
-            function ($status) {
-                $status->cancel_order();
-            }
-        );
-
-        return $response;
+        return $this->orderService->generateResponseForStateMachine($order, EStateMachineFunctions::CANCEL_ORDER,);
     }
 
     public function availableFunctions(Order $order)

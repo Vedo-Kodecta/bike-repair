@@ -2,10 +2,14 @@
 
 namespace App\Services;
 
+use App\Enums\ERepairStatus;
+use App\Enums\EStateMachineFunctions;
 use App\Http\Traits\CanLoadRelationships;
 use App\Interfaces\BaseServiceInterface;
+use App\Models\Order;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 abstract class BaseService implements BaseServiceInterface
 {
