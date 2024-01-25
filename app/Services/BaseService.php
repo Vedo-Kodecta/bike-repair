@@ -2,22 +2,24 @@
 
 namespace App\Services;
 
-use App\Enums\ERepairStatus;
-use App\Enums\EStateMachineFunctions;
 use App\Http\Traits\CanLoadRelationships;
 use App\Interfaces\BaseServiceInterface;
-use App\Models\Order;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use InvalidArgumentException;
 
 abstract class BaseService implements BaseServiceInterface
 {
     use CanLoadRelationships;
 
-    public function getAll(?Model $model = null, ?array $relationships = null)
+    public function getAll(?Model $model = null, ?string $searchParameter, ?array $relationships = null)
     {
-        return $this->loadRelationships($model::query(), $relationships);
+        $query = $model::query();
+
+        if ($searchParameter) {
+            $query->searchByValue($searchParameter);
+        }
+
+        return $this->loadRelationships($query, $relationships);
     }
 
     public function getOne(Model $model, ?array $relationships = null)

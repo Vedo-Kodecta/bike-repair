@@ -10,6 +10,7 @@ use App\StateMachines\RepairStatus\OrderInquiryReceivedState;
 use App\StateMachines\RepairStatus\OrderInquirySentState;
 use App\StateMachines\RepairStatus\OrderReadyState;
 use App\StateMachines\RepairStatus\PaymentSentState;
+use App\Traits\SearchableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,7 @@ use InvalidArgumentException;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, SearchableTrait;
 
     protected $fillable = [
         'name',

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 interface BaseServiceInterface
 {
-    public function getAll(?Model $model, ?array $relationships);
+    public function getAll(?Model $model, ?string $searchParameter, ?array $relationships);
     public function getOne(Model $model, ?array $relationships);
     public function create(mixed $request);
     public function update(Request $request, Model $model);

@@ -29,7 +29,7 @@ class OrderController extends Controller
 
     public function index()
     {
-        return $this->orderService->getAll();
+        return $this->orderService->getAll(null, 'name');
     }
 
     /**

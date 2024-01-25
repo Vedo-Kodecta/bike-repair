@@ -8,24 +8,24 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\RepairStatus;
 use App\Models\Scopes\GlobalScope;
+use App\Traits\PaginationTrait;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 use InvalidArgumentException;
 
 class OrderService extends BaseService
 {
 
+    use PaginationTrait;
     private array $relations = ['mechanic', 'customer', 'repairStatus'];
 
-    public function getAll(?Model $model = null, ?array $relationships = null)
+    public function getAll(?Model $model = null, ?string $searchParameter = null, ?array $relationships = null)
     {
         $model = $model ?? Order::class;
         $relationships = $relationships ?? $this->relations;
 
-        $data = parent::getAll(new $model, $relationships);
+        $data = parent::getAll(new $model, $searchParameter, $relationships)->get();
 
-        //paginacija ide ovde
-        return OrderResource::collection($data->latest()->paginate());
+        return OrderResource::collection($this->customPagination($data));
     }
 
     public function getOne(Model $model, ?array $relationships = null)
@@ -34,7 +34,6 @@ class OrderService extends BaseService
 
         $data = parent::getOne($model, $relationships);
 
-        //paginacija ide ovde
         return OrderResource::make($data);
     }
 
