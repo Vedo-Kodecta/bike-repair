@@ -51,9 +51,7 @@ class OrderService extends BaseService
     {
         parent::remove($model);
 
-        return response(status: 204)->json([
-            'message' => 'Order deleted successfully'
-        ]);
+        return GlobalScope::returnJSONMessage(204, "Order deleted successfully");
     }
 
     public function orderWithRepairStatus(Order $order, int $status)

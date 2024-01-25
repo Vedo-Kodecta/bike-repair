@@ -107,7 +107,7 @@ class GlobalScope implements Scope
     /**
      * Add current user value to the request
      */
-    public static function addCurrentUserValueToRequest(Request $request, string $value)
+    public static function addCurrentUserValueToRequest(Request $request, string $value): JsonResponse
     {
         try {
             $data = $request->validated();
@@ -125,7 +125,7 @@ class GlobalScope implements Scope
     /**
      * Add current user value to the model
      */
-    public static function addCurrentUserValueToModel(Model $model, string $value)
+    public static function addCurrentUserValueToModel(Model $model, string $value): JsonResponse
     {
         try {
             $model->{$value} = auth()->user()->id;
@@ -138,4 +138,16 @@ class GlobalScope implements Scope
             ], 500);
         }
     }
+
+    /**
+     * Return message for REST API
+     */
+    public static function returnJSONMessage(int $statusCode, string $message): JsonResponse
+    {
+        return response(status: $statusCode)->json([
+            'message' => $message
+        ]);
+    }
+
+    //TODO RETURN FOR GRAPH QL
 }
