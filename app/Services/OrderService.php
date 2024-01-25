@@ -23,9 +23,11 @@ class OrderService extends BaseService
         $model = $model ?? Order::class;
         $relationships = $relationships ?? $this->relations;
 
-        $data = parent::getAll(new $model, $searchParameter, $relationships)->get();
+        $data = parent::getAll(new $model, $searchParameter, $relationships);
 
-        return OrderResource::collection($this->customPagination($data));
+        FilterService::apply($data);
+
+        return OrderResource::collection($this->customPagination($data->get()));
     }
 
     public function getOne(Model $model, ?array $relationships = null)
