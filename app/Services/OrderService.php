@@ -51,6 +51,7 @@ class OrderService extends BaseService
     {
         parent::remove($model);
 
+        //U slucaju graphqla ide ovde neki if else
         return GlobalScope::returnJSONMessage(204, "Order deleted successfully");
     }
 
